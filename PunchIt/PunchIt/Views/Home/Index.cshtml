@@ -1,0 +1,35 @@
+﻿
+@{
+    ViewBag.Title = "PunchIt";
+}
+
+<h2>上班</h2>
+<input class="btn btn-default" id="workButton" type="button" value="打卡" />
+<h4 id="punchedMessage"></h4>
+@section scripts {
+    <script src="~/Scripts/jquery.signalR-2.2.0.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+        $(function () {
+            // 宣告 SignalR Hub
+            var punchHub = $.connection.punchHub;
+
+            // 宣告 Client 端可以被 Server 呼叫的方法
+            punchHub.client.punched = function () {
+                console.log('打卡成功！');
+                $('#punchedMessage').text('打卡成功！');
+            };
+
+            // 開始與 SignalR 伺服器連線
+            $.connection.hub.start()
+                .done(function () {
+                    $('#workButton').click(function () {
+                        // Call the Send method on the hub.
+                        console.log('aaa');
+                        punchHub.server.punch();
+                    });
+                });
+
+        });
+    </script>
+}
