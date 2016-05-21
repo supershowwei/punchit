@@ -3,11 +3,20 @@
     ViewBag.Title = "PunchIt";
 }
 
-<h2>上班</h2>
-<input class="btn btn-default" id="workButton" type="button" value="打卡" />
-<h4 id="punchedMessage"></h4>
+<div class="row">
+    <div class="col-xs-12" style="height:380px;">&nbsp;</div>
+</div>
+<div class="row">
+    <div class="col-xs-4"></div>
+    <div class="col-xs-4"></div>
+    <div class="col-xs-4">
+        <h2>上班</h2>
+        <input class="btn btn-default" id="punchButton" type="button" value="打卡" />
+        <h4 id="punchedMessage"></h4>
+    </div>
+</div>
 @section scripts {
-    <script src="~/Scripts/jquery.signalR-2.2.0.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
     <script src="~/signalr/hubs"></script>
     <script>
         $(function () {
@@ -23,9 +32,7 @@
             // 開始與 SignalR 伺服器連線
             $.connection.hub.start()
                 .done(function () {
-                    $('#workButton').click(function () {
-                        // Call the Send method on the hub.
-                        console.log('aaa');
+                    $('#punchButton').click(function () {
                         punchHub.server.punch();
                     });
                 });
