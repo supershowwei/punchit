@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,6 +13,7 @@ namespace PunchItAgent
         private static readonly string HubName = "PunchHub";
         private HubConnection hubConnection = new HubConnection(Properties.Settings.Default.SignalRService);
         private IHubProxy punchHubProxy;
+        private DateTime punchedTime;
 
         public MainForm()
         {
@@ -51,10 +46,12 @@ namespace PunchItAgent
             this.punchHubProxy = this.hubConnection.CreateHubProxy(HubName);
 
             // 顯示 Hub 傳入的文字訊息
-            this.punchHubProxy.On("Punch", () =>
-            {
-                this.Punch();
-            });
+            this.punchHubProxy.On(
+                "Punch",
+                () =>
+                {
+                    this.Punch();
+                });
         }
 
         private void WaitToPunch()
@@ -84,7 +81,21 @@ namespace PunchItAgent
         {
             if (IsNeedToPunch())
             {
-                Process.Start(Properties.Settings.Default.Browser, Properties.Settings.Default.PunchURL);
+                this.punchedTime =
+                    DateTime.Now.Date
+                        .AddHours(8)
+                        .AddMinutes(new Random(Guid.NewGuid().GetHashCode()).Next(25, 35))
+                        .AddSeconds(new Random(Guid.NewGuid().GetHashCode()).Next(0, 60));
+
+                Task.Run(() =>
+                {
+                    while (DateTime.Now < this.punchedTime)
+                    {
+                        Thread.Sleep(5000);
+                    }
+
+                    Process.Start(Properties.Settings.Default.Browser, Properties.Settings.Default.PunchURL);
+                });
 
                 this.punchHubProxy.Invoke("Punched")
                     .ContinueWith((task) =>
